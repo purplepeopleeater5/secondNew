@@ -23,6 +23,9 @@
       --ring: rgba(255,106,0,.35);
       --radius: 16px;
       --border: 1px solid #232837;
+      --shadow-lg: 0 20px 60px rgba(0,0,0,.35);
+      --shadow-md: 0 14px 40px rgba(0,0,0,.28);
+      --glass: rgba(17, 20, 26, .6);
     }
     *{box-sizing:border-box}
     html{scroll-behavior:smooth}
@@ -37,9 +40,10 @@
     }
     a{color:inherit}
     .container{max-width:1120px;margin:0 auto;padding:24px}
-    header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:10px 0;border-bottom:1px solid #242833}
+    header{position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:10px 0;border-bottom:1px solid #242833;backdrop-filter:blur(8px);background:linear-gradient(180deg,var(--glass),transparent);}
     .logo{display:flex;align-items:center;gap:12px;font-weight:800;letter-spacing:.2px}
     .logo span{ font-size:22px }
+    .grad{background:linear-gradient(135deg,var(--fg), #d7dbff 35%, var(--brand-2));-webkit-background-clip:text;background-clip:text;color:transparent}
     .logo-badge{
       width:40px;
       height:40px;
@@ -56,7 +60,7 @@
     .nav a:hover::after,.nav a:focus::after{opacity:1;transform:translateY(0)}
     .cta{display:inline-block;background:linear-gradient(135deg,var(--brand),var(--brand-2));color:#0b0c0f;
          padding:12px 18px;border-radius:14px;font-weight:800;text-decoration:none;box-shadow:0 10px 30px var(--ring);
-         transition:transform .12s ease, box-shadow .12s ease}
+         transition:transform .12s ease, box-shadow .12s ease;letter-spacing:.2px}
     .cta:hover{transform:translateY(-1px);box-shadow:0 16px 40px var(--ring)}
     .as-badge{display:inline-flex;align-items:center;gap:10px;background:#000;color:#fff;border-radius:12px;padding:10px 14px;text-decoration:none;border:1px solid #222;box-shadow:0 8px 24px rgba(0,0,0,.35);transition:transform .12s ease, box-shadow .12s ease}
     .as-badge:hover{transform:translateY(-1px);box-shadow:0 16px 40px rgba(0,0,0,.35)}
@@ -72,10 +76,11 @@
     .hero p{color:var(--muted);margin:0 0 22px}
     .badges{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:10px}
     .trust{margin-top:8px;color:var(--muted)}
+    .divider{height:1px;background:linear-gradient(90deg,transparent,#242833,transparent);margin:18px 0}
     .row{display:flex;gap:12px;flex-wrap:wrap}
     .device{
       background:linear-gradient(180deg,#171a22,#0e1116);
-      border:1px solid #242833;border-radius:24px;padding:18px;box-shadow:0 18px 60px rgba(0,0,0,.45);
+      border:1px solid #242833;border-radius:24px;padding:20px;box-shadow:var(--shadow-lg);
       backdrop-filter:saturate(120%);
     }
     .screen{
@@ -86,11 +91,13 @@
     }
     .pill{display:inline-flex;gap:8px;align-items:center;padding:6px 10px;border-radius:999px;background:#181c24;border:1px solid #242a35;color:#b3bcc8;font-size:13px}
     .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin:48px 0}
-    .card{background:var(--card);border:var(--border);border-radius:var(--radius);padding:20px;transition:transform .12s ease, box-shadow .12s ease}
-    .card:hover{transform:translateY(-2px);box-shadow:0 18px 46px rgba(0,0,0,.28)}
+    .card{background:var(--card);border:var(--border);border-radius:var(--radius);padding:22px;position:relative;transition:transform .12s ease, box-shadow .12s ease}
+    .card::before{content:"";position:absolute;inset:0 0 auto 0;height:2px;background:linear-gradient(90deg,transparent,var(--brand) 30%,var(--brand-2) 70%,transparent);opacity:.55;border-top-left-radius:inherit;border-top-right-radius:inherit}
+    .card:hover{transform:translateY(-2px);box-shadow:var(--shadow-md)}
     .section{padding:24px 0}
     .faq details{background:var(--card);border:var(--border);border-radius:14px;padding:14px 16px;transition:background .15s ease,border-color .15s ease}
     .faq details[open]{background:#141823;border-color:#2b313d}
+    .faq p.small{margin-top:8px}
     .faq details+details{margin-top:10px}
     .faq summary{cursor:pointer;font-weight:600}
     .faq summary::-webkit-details-marker{display:none}
@@ -105,6 +112,7 @@
       .grid{grid-template-columns:1fr}
       header{flex-direction:column;align-items:flex-start;gap:12px}
       .foot-row{flex-direction:column;align-items:flex-start}
+      .container{padding:16px}
     }
     @media (prefers-color-scheme: light){
       :root{ --bg:#ffffff; --card:#f7f8fb; --fg:#0b0c0f; --muted:#4b5563; }
@@ -135,8 +143,9 @@
     <section class="hero">
       <div>
         <div class="pill"><strong>🍳 Recipe Manager</strong> • 🗓 Meal Planner • 🧾 Smart Grocery Lists</div>
-        <h1>Cook more, plan faster, waste less.</h1>
+        <h1 class="grad">Cook more, plan faster, waste less.</h1>
         <p>Nutmeg keeps your favorite recipes, helps you plan the week, and turns plans into organized grocery lists—automatically.</p>
+        <div class="divider" aria-hidden="true"></div>
         <div class="row">
           <a class="cta" href="https://apps.apple.com/us/app/nutmeg-recipe-manager/id6749527409" target="_blank" rel="noopener" aria-label="Download Nutmeg on the App Store">Get the app</a>
           <a class="ghost" href="#features">See how it works</a>
@@ -156,8 +165,8 @@
       <div class="device">
         <div class="screen">
           <div>
-            <h2 style="margin:0 0 8px">Nutmeg</h2>
-            <p class="small" style="margin:0 0 16px;color:#9aa1ab">Plan your week at a glance</p>
+            <h2 style="margin:0 0 8px;letter-spacing:.2px">Nutmeg</h2>
+            <p class="small" style="margin:0 0 18px;color:#9aa1ab">Plan your week at a glance</p>
             <div class="row" style="justify-content:center">
               <span class="pill">🍝 Save recipes</span>
               <span class="pill">🗓 Plan meals</span>
@@ -175,6 +184,7 @@
         <div class="card"><h3>Clip recipes in seconds</h3><p>Paste a link and Nutmeg saves a clean recipe view with ingredients, steps, and timers—no clutter.</p></div>
         <div class="card"><h3>Plan your week fast</h3><p>Drag meals onto your calendar. Reuse favorites and auto‑fill busy nights.</p></div>
         <div class="card"><h3>Smart grocery lists</h3><p>Ingredients are grouped by aisle and deduped automatically—shop once, forget nothing.</p></div>
+        <div class="card"><h3>Private by default</h3><p>We don’t run ads or sell your data. Your recipes and lists are yours—online and offline.</p></div>
         <div class="card"><h3>Pantry & leftovers</h3><p>Track staples and use them up—Nutmeg suggests recipes that fit what you already have.</p></div>
         <div class="card"><h3>Share & collaborate</h3><p>Share lists with family or roommates so everyone stays in sync.</p></div>
         <div class="card"><h3>Works offline</h3><p>Your recipes and lists stay with you—even with no signal in the grocery aisle.</p></div>
@@ -219,6 +229,7 @@
         <a href="/termsofuse.html" style="text-decoration:none">Terms</a>&nbsp;·&nbsp;
         <a href="mailto:Nutmegrecipes@gmail.com" style="text-decoration:none">Support</a>
       </div>
+      <div class="small" style="margin-top:12px;opacity:.8">Built with ❤️ in California</div>
     </footer>
   </div>
   <script>document.getElementById('y').textContent = new Date().getFullYear()</script>
