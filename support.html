@@ -79,7 +79,11 @@
       <p class="muted">Questions, bug reports, or feedback? Send us a message and we’ll get back to you at <a href="mailto:Nutmegrecipes@gmail.com">Nutmegrecipes@gmail.com</a>.</p>
 
       <div class="card">
-        <form id="support-form" novalidate>
+        <form id="support-form" method="POST" action="/support" novalidate>
+          <div aria-hidden="true" style="position:absolute;left:-5000px">
+            <label for="website">Leave this field empty</label>
+            <input id="website" name="website" type="text" tabindex="-1" autocomplete="off">
+          </div>
           <div>
             <label for="email">Email <span class="req">*</span></label>
             <input id="email" name="email" type="email" placeholder="you@example.com" required autocomplete="email">
@@ -123,23 +127,13 @@
     // Update footer year
     document.getElementById('y').textContent = new Date().getFullYear();
 
-    // Temporary client-side success (replace with real submit later)
-    document.getElementById('support-form').addEventListener('submit', function(e){
-      e.preventDefault();
-      var email = document.getElementById('email');
-      var title = document.getElementById('title');
-      var message = document.getElementById('message');
-
-      if (!email.checkValidity() || !title.value.trim() || !message.value.trim()) {
-        // trigger native validation UI
-        email.reportValidity();
-        title.reportValidity && title.reportValidity();
-        message.reportValidity && message.reportValidity();
-        return;
+    // Show success if redirected with ?sent=1
+    try {
+      const u=new URL(window.location.href);
+      if(u.searchParams.get('sent')==='1'){
+        document.getElementById('success').style.display='block';
       }
-      document.getElementById('success').style.display = 'block';
-      this.reset();
-    });
+    } catch(e){}
   </script>
 </body>
 </html>
