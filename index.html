@@ -38,7 +38,10 @@
     body{
       margin:0; font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
       color:var(--fg);
-      background: var(--bg);
+      background:
+        radial-gradient(1400px 900px at 10% -10%, #1a1f2b 0%, transparent 55%),
+        radial-gradient(1000px 600px at 100% -20%, rgba(255,106,0,.10), transparent 40%),
+        var(--bg);
     }
     a{color:inherit}
     .container{max-width:1120px;margin:0 auto;padding:24px}
@@ -110,7 +113,7 @@
     }
     @media (prefers-color-scheme: light){
       :root{ --bg:#ffffff; --card:#f7f8fb; --fg:#0b0c0f; --muted:#4b5563; }
-      body{background:#fff}
+      body{background:radial-gradient(1200px 800px at 10% -10%, #f2f5ff 0%, #fff 60%)}
       .device{background:#fff;border-color:#e5e7eb}
       .screen{background:linear-gradient(180deg,#f9fafb,#f1f5f9);border-color:#e5e7eb;color:#0b0c0f}
       .pill{background:#fff;border-color:#e5e7eb;color:#4b5563}
