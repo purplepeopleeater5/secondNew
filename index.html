@@ -5,11 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Nutmeg — Recipes, Meal Plans, & Grocery Lists</title>
   <meta name="description" content="Nutmeg is a simple, fast recipe manager with meal planning and smart grocery lists. Cook more. Waste less.">
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 128 128'%3E%3Ccircle cx='64' cy='64' r='64' fill='%23ff6a00'/%3E%3Cpath d='M86 44c0 10-9 16-22 16S42 54 42 44s9-18 22-18 22 8 22 18zm-44 40c0-12 10-20 22-20s22 8 22 20v6a10 10 0 0 1-10 10H52a10 10 0 0 1-10-10z' fill='white'/%3E%3C/svg%3E">
+  <link rel="icon" type="image/png" href="/20250405_1822_Happy Nutmeg Slice_remix_01jr4b2pm2fa88reyf1f05jf60.png">
+  <link rel="apple-touch-icon" href="/20250405_1822_Happy Nutmeg Slice_remix_01jr4b2pm2fa88reyf1f05jf60.png">
+  <meta name="theme-color" content="#ff6a00">
   <meta property="og:title" content="Nutmeg — Recipes, Meal Plans, & Grocery Lists">
   <meta property="og:description" content="Save recipes, plan the week, and auto-build grocery lists.">
   <meta property="og:type" content="website">
-  <meta property="og:image" content="https://nutmegrecipes.app/og.png">
+  <meta property="og:image" content="/20250405_1822_Happy Nutmeg Slice_remix_01jr4b2pm2fa88reyf1f05jf60.png">
   <style>
     :root{
       --bg:#0b0c0f;
@@ -56,11 +58,20 @@
          padding:12px 18px;border-radius:14px;font-weight:800;text-decoration:none;box-shadow:0 10px 30px var(--ring);
          transition:transform .12s ease, box-shadow .12s ease}
     .cta:hover{transform:translateY(-1px);box-shadow:0 16px 40px var(--ring)}
+    .as-badge{display:inline-flex;align-items:center;gap:10px;background:#000;color:#fff;border-radius:12px;padding:10px 14px;text-decoration:none;border:1px solid #222;box-shadow:0 8px 24px rgba(0,0,0,.35);transition:transform .12s ease, box-shadow .12s ease}
+    .as-badge:hover{transform:translateY(-1px);box-shadow:0 16px 40px rgba(0,0,0,.35)}
+    .as-badge svg{display:block;height:22px;width:22px}
+    .as-badge .t{display:flex;flex-direction:column;line-height:1}
+    .as-badge .t small{opacity:.8;font-size:11px}
+    .as-badge .t b{font-size:14px;letter-spacing:.2px}
+    @media (prefers-color-scheme: light){ .as-badge{background:#111;border-color:#222} }
     .ghost{background:transparent;color:var(--fg);border:var(--border);padding:12px 16px;border-radius:14px;text-decoration:none;transition:background .15s ease, border-color .15s ease}
     .ghost:hover{background:#171b23;border-color:#2f3643}
     .hero{display:grid;grid-template-columns:1.15fr .85fr;gap:48px;align-items:center;padding:56px 0}
     .hero h1{font-size:clamp(28px,4.4vw,52px);line-height:1.05;margin:0 0 12px}
     .hero p{color:var(--muted);margin:0 0 22px}
+    .badges{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:10px}
+    .trust{margin-top:8px;color:var(--muted)}
     .row{display:flex;gap:12px;flex-wrap:wrap}
     .device{
       background:linear-gradient(180deg,#171a22,#0e1116);
@@ -130,6 +141,16 @@
           <a class="cta" href="https://apps.apple.com/us/app/nutmeg-recipe-manager/id6749527409" target="_blank" rel="noopener" aria-label="Download Nutmeg on the App Store">Get the app</a>
           <a class="ghost" href="#features">See how it works</a>
         </div>
+        <div class="badges">
+          <a class="as-badge" href="https://apps.apple.com/us/app/nutmeg-recipe-manager/id6749527409" target="_blank" rel="noopener" aria-label="Download on the App Store">
+            <!-- Minimal Apple-like glyph (not trademarked asset) -->
+            <svg viewBox="0 0 24 24" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+              <path fill="currentColor" d="M16.365 1.43c.02 1.19-.43 2.09-1.09 2.83-.67.74-1.6 1.31-2.8 1.23-.11-1.1.34-2.1 1-2.84.69-.79 1.83-1.38 2.89-1.22zM20.7 17.18c-.54 1.25-1.19 2.34-2 3.35-.74.92-1.6 1.88-2.76 1.9-1.04.02-1.37-.62-2.85-.62-1.49 0-1.86.62-2.9.64-1.16.03-2.04-.99-2.78-1.9-1.51-1.87-2.67-4.76-2.7-7.57-.03-1.47.3-2.87 1.04-3.98.93-1.39 2.41-2.3 4.08-2.33 1.12-.02 2.16.66 2.85.66.68 0 1.95-.82 3.29-.7.56.02 2.15.23 3.17 1.75-.08.05-1.89 1.1-1.87 3.28.02 2.61 2.32 3.47 2.35 3.48-.03.09-.1.31-.17.54z"/>
+            </svg>
+            <span class="t"><small>Download on the</small><b>App Store</b></span>
+          </a>
+        </div>
+        <div class="trust">No ads · Works offline · Private by default</div>
       </div>
 
       <div class="device">
@@ -151,9 +172,9 @@
       <h2 style="margin:0 0 12px">Why you’ll love Nutmeg</h2>
       <p class="small" style="margin:0 0 18px">Built for speed and simplicity—whether you cook nightly or just want fewer “what’s for dinner?” moments.</p>
       <div class="grid">
-        <div class="card"><h3>Save recipes instantly</h3><p>Import from the web or add your own. Clean, readable recipe view with timers and notes.</p></div>
-        <div class="card"><h3>Plan the week</h3><p>Drag-and-drop meals onto your calendar. Duplicate favorites and reuse plans in seconds.</p></div>
-        <div class="card"><h3>Auto grocery lists</h3><p>Nutmeg groups ingredients by aisle, deduplicates items, and lets you check things off as you shop.</p></div>
+        <div class="card"><h3>Clip recipes in seconds</h3><p>Paste a link and Nutmeg saves a clean recipe view with ingredients, steps, and timers—no clutter.</p></div>
+        <div class="card"><h3>Plan your week fast</h3><p>Drag meals onto your calendar. Reuse favorites and auto‑fill busy nights.</p></div>
+        <div class="card"><h3>Smart grocery lists</h3><p>Ingredients are grouped by aisle and deduped automatically—shop once, forget nothing.</p></div>
         <div class="card"><h3>Pantry & leftovers</h3><p>Track staples and use them up—Nutmeg suggests recipes that fit what you already have.</p></div>
         <div class="card"><h3>Share & collaborate</h3><p>Share lists with family or roommates so everyone stays in sync.</p></div>
         <div class="card"><h3>Works offline</h3><p>Your recipes and lists stay with you—even with no signal in the grocery aisle.</p></div>
@@ -194,8 +215,8 @@
         <div class="small">© <span id="y"></span> Nutmeg. All rights reserved.</div>
       </div>
       <div class="small" style="margin-top:10px">
-        <a href="/privacypolicy.html" style="text-decoration:none">Privacy</a> ·
-        <a href="/termsofuse.html" style="text-decoration:none">Terms</a> ·
+        <a href="/privacypolicy.html" style="text-decoration:none">Privacy</a>&nbsp;·&nbsp;
+        <a href="/termsofuse.html" style="text-decoration:none">Terms</a>&nbsp;·&nbsp;
         <a href="mailto:Nutmegrecipes@gmail.com" style="text-decoration:none">Support</a>
       </div>
     </footer>
