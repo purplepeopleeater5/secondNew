@@ -49,6 +49,15 @@
     .logo{display:flex;align-items:center;gap:12px;font-weight:800;letter-spacing:.2px}
     .logo span{ font-size:24px; letter-spacing:.2px }
     .grad{background:linear-gradient(135deg,var(--fg), #d7dbff 35%, var(--brand-2));-webkit-background-clip:text;background-clip:text;color:transparent}
+    /* Faint grid overlay for depth */
+    body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;
+      background:
+        linear-gradient(to right, rgba(255,255,255,.035) 1px, transparent 1px) 0 0 / 24px 24px,
+        linear-gradient(to bottom, rgba(255,255,255,.03) 1px, transparent 1px) 0 0 / 24px 24px;
+      opacity:.25}
+    @media (prefers-color-scheme: light){ body::after{background:
+        linear-gradient(to right, rgba(0,0,0,.04) 1px, transparent 1px) 0 0 / 24px 24px,
+        linear-gradient(to bottom, rgba(0,0,0,.035) 1px, transparent 1px) 0 0 / 24px 24px; opacity:.14} }
     /* Subtle ambient background animation */
     body::before{content:"";position:fixed;inset:-20%;z-index:-1;pointer-events:none;
       background:conic-gradient(from 220deg at 15% 10%, rgba(255,106,0,.07), transparent 30%, rgba(255,106,0,.06) 60%, transparent 85%);
@@ -91,6 +100,10 @@
     .hero{display:grid;grid-template-columns:1.15fr .85fr;gap:48px;align-items:center;padding:56px 0}
     .hero h1{font-size:clamp(32px,5.2vw,64px);line-height:1.03;margin:0 0 14px}
     .hero p{color:var(--muted);margin:0 0 22px}
+    .section h2{position:relative}
+    .section h2::after{content:"";position:absolute;left:0;bottom:-10px;width:72px;height:3px;border-radius:2px;
+      background:linear-gradient(90deg,var(--brand),var(--brand-2))}
+    .section [id]{scroll-margin-top:84px}
     .badges{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:10px}
     .trust{margin-top:8px;color:var(--muted)}
     .divider{height:1px;background:linear-gradient(90deg,transparent,#242833,transparent);margin:18px 0}
@@ -120,6 +133,7 @@
     .quote::before{content:"\201C";position:absolute;top:-10px;left:12px;font-size:48px;line-height:1;color:#ff6a001a}
     .quote p{margin:0 0 10px;color:#cbd2df}
     .quote .by{color:var(--muted);font-size:13px}
+    .stars{color:#ffd166; letter-spacing:2px; font-size:14px; margin:0 0 8px}
     @media (max-width: 900px){ .testi{grid-template-columns:1fr} }
     .step{background:var(--card);border:var(--border);border-radius:var(--radius);padding:18px 18px 16px}
     .step h3{display:flex;align-items:center;gap:10px;margin:0 0 6px;font-size:18px}
@@ -181,6 +195,7 @@
         <span>Nutmeg</span>
       </div>
       <nav class="nav">
+        <a href="#how">How it works</a>
         <a href="#features">Features</a>
         <a href="#faq">FAQ</a>
         <a class="ghost" href="mailto:Nutmegrecipes@gmail.com">Support</a>
@@ -272,14 +287,17 @@
       <h2 id="love" style="margin:0 0 12px">What people say</h2>
       <div class="testi">
         <div class="quote">
+          <div class="stars" aria-hidden="true">★★★★★</div>
           <p>“Exactly what I needed to get out of the weeknight rut. Planning is actually fast now.”</p>
           <div class="by">— A.S.</div>
         </div>
         <div class="quote">
+          <div class="stars" aria-hidden="true">★★★★★</div>
           <p>“Import worked for every site I tried and the lists are shockingly tidy.”</p>
           <div class="by">— L.R.</div>
         </div>
         <div class="quote">
+          <div class="stars" aria-hidden="true">★★★★★</div>
           <p>“No ads, offline in the grocery store, and it just stays out of my way.”</p>
           <div class="by">— M.K.</div>
         </div>
