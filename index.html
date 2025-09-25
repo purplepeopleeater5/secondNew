@@ -49,6 +49,12 @@
     .logo{display:flex;align-items:center;gap:12px;font-weight:800;letter-spacing:.2px}
     .logo span{ font-size:24px; letter-spacing:.2px }
     .grad{background:linear-gradient(135deg,var(--fg), #d7dbff 35%, var(--brand-2));-webkit-background-clip:text;background-clip:text;color:transparent}
+    /* Subtle ambient background animation */
+    body::before{content:"";position:fixed;inset:-20%;z-index:-1;pointer-events:none;
+      background:conic-gradient(from 220deg at 15% 10%, rgba(255,106,0,.07), transparent 30%, rgba(255,106,0,.06) 60%, transparent 85%);
+      filter:blur(40px);opacity:.65;animation:spin 28s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    @media (prefers-reduced-motion: reduce){ body::before{animation:none} }
     .copy{max-width:640px}
     .eyebrow{display:inline-block;font-size:12px;letter-spacing:.24em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
     .logo-badge{
@@ -65,6 +71,8 @@
     .nav a:hover,.nav a:focus{opacity:1}
     .nav a::after{content:"";position:absolute;left:0;right:0;bottom:0;height:2px;background:linear-gradient(135deg,var(--brand),var(--brand-2));opacity:0;transform:translateY(3px);transition:all .2s ease}
     .nav a:hover::after,.nav a:focus::after{opacity:1;transform:translateY(0)}
+    .nav .cta{padding:10px 14px;border-radius:12px;box-shadow:0 8px 24px var(--ring)}
+    @media (max-width: 900px){ .nav .cta{margin-top:8px} }
     .cta{display:inline-block;background:linear-gradient(135deg,var(--brand),var(--brand-2));color:#0b0c0f;
          padding:12px 18px;border-radius:14px;font-weight:800;text-decoration:none;box-shadow:0 10px 30px var(--ring);
          transition:transform .12s ease, box-shadow .12s ease;letter-spacing:.2px}
@@ -107,6 +115,12 @@
     .card:hover{transform:translateY(-2px);box-shadow:var(--shadow-md)}
     .section{padding:24px 0}
     .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin:8px 0 44px}
+    .testi{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin:8px 0 44px}
+    .quote{background:var(--card);border:var(--border);border-radius:var(--radius);padding:18px;position:relative}
+    .quote::before{content:"\201C";position:absolute;top:-10px;left:12px;font-size:48px;line-height:1;color:#ff6a001a}
+    .quote p{margin:0 0 10px;color:#cbd2df}
+    .quote .by{color:var(--muted);font-size:13px}
+    @media (max-width: 900px){ .testi{grid-template-columns:1fr} }
     .step{background:var(--card);border:var(--border);border-radius:var(--radius);padding:18px 18px 16px}
     .step h3{display:flex;align-items:center;gap:10px;margin:0 0 6px;font-size:18px}
     .step p{margin:0;color:var(--muted)}
@@ -170,6 +184,7 @@
         <a href="#features">Features</a>
         <a href="#faq">FAQ</a>
         <a class="ghost" href="mailto:Nutmegrecipes@gmail.com">Support</a>
+        <a class="cta" href="https://apps.apple.com/us/app/nutmeg-recipe-manager/id6749527409" target="_blank" rel="noopener" aria-label="Download Nutmeg on the App Store">Get the app</a>
       </nav>
     </header>
 
@@ -249,6 +264,25 @@
         <h3 style="margin-top:4px">Ready to cook smarter?</h3>
         <p class="small" style="margin:8px 0 16px">Download Nutmeg and plan your next week of meals in minutes.</p>
         <a class="cta" href="https://apps.apple.com/us/app/nutmeg-recipe-manager/id6749527409" target="_blank" rel="noopener">Get the app</a>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="love">
+      <div class="eyebrow">Loved by home cooks</div>
+      <h2 id="love" style="margin:0 0 12px">What people say</h2>
+      <div class="testi">
+        <div class="quote">
+          <p>“Exactly what I needed to get out of the weeknight rut. Planning is actually fast now.”</p>
+          <div class="by">— A.S.</div>
+        </div>
+        <div class="quote">
+          <p>“Import worked for every site I tried and the lists are shockingly tidy.”</p>
+          <div class="by">— L.R.</div>
+        </div>
+        <div class="quote">
+          <p>“No ads, offline in the grocery store, and it just stays out of my way.”</p>
+          <div class="by">— M.K.</div>
+        </div>
       </div>
     </section>
 
