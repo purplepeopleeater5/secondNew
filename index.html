@@ -31,8 +31,13 @@
     header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:8px 0}
     .logo{display:flex;align-items:center;gap:10px;font-weight:700}
     .logo-badge{
-      width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,var(--brand),var(--brand-2));
-      display:grid;place-items:center;color:#fff;font-weight:900;box-shadow:0 6px 22px rgba(255,106,0,.35)
+      width:34px;
+      height:34px;
+      border-radius:9px;
+      display:block;
+      object-fit:cover;
+      box-shadow:0 6px 22px rgba(255,106,0,.35);
+      border:1px solid #242833;
     }
     .nav a{opacity:.85;text-decoration:none;margin-left:18px}
     .cta{display:inline-block;background:linear-gradient(135deg,var(--brand),var(--brand-2));color:#0b0c0f;
@@ -72,6 +77,7 @@
       .screen{background:linear-gradient(180deg,#f9fafb,#f1f5f9);border-color:#e5e7eb;color:#0b0c0f}
       .pill{background:#fff;border-color:#e5e7eb;color:#4b5563}
       .card{background:#fff;border-color:#e5e7eb}
+      .logo-badge{ border-color:#e5e7eb }
     }
   </style>
 </head>
@@ -79,7 +85,7 @@
   <div class="container">
     <header>
       <div class="logo">
-        <div class="logo-badge">N</div>
+        <img class="logo-badge" src="20250405_1822_Happy Nutmeg Slice_remix_01jr4b2pm2fa88reyf1f05jf60.png" alt="Nutmeg logo">
         <span>Nutmeg</span>
       </div>
       <nav class="nav">
