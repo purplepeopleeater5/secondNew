@@ -6,11 +6,17 @@ export const onRequestGet: PagesFunction<{ RECIPES_BUCKET: R2Bucket }> = async (
 
   const url = new URL(ctx.request.url);
   const accept = (ctx.request.headers.get("accept") || "").toLowerCase();
-  const forceHtml = url.searchParams.get("view") === "html";
+  const ua = (ctx.request.headers.get("user-agent") || "").toLowerCase();
+  const format = url.searchParams.get("format"); // ?format=json to force JSON
 
-  // Serve HTML for unfurlers/browsers (iMessage, Slack, etc.)
-  if (forceHtml || accept.includes("text/html")) {
-    // We need the body text to count recipes & extract the first title
+  // Decide JSON vs HTML:
+  // - JSON if client explicitly asks for it
+  // - otherwise HTML (so iMessage/preview bots see OG tags)
+  const wantsJson =
+    format === "json" ||
+    accept.includes("application/json");
+
+  if (!wantsJson) {
     const text = await obj.text();
     const count = countRecipesInText(text);
     const firstTitle = extractFirstTitle(text);
@@ -85,7 +91,7 @@ export const onRequestGet: PagesFunction<{ RECIPES_BUCKET: R2Bucket }> = async (
     });
   }
 
-  // Default: JSON for the app
+  // JSON path (for the app)
   return new Response(obj.body, {
     headers: {
       "content-type": "application/json",
@@ -99,8 +105,6 @@ export const onRequestHead: PagesFunction<{ RECIPES_BUCKET: R2Bucket }> = async 
   const key = `sharedRecipes/${id}.json`;
   const head = await ctx.env.RECIPES_BUCKET.head(key);
   if (!head) return new Response(null, { status: 404 });
-
-  // Keep HEAD JSON-like for diagnostics
   return new Response(null, {
     headers: {
       "content-type": "application/json",
@@ -111,17 +115,12 @@ export const onRequestHead: PagesFunction<{ RECIPES_BUCKET: R2Bucket }> = async 
 
 /* ----------------- utils ----------------- */
 
-// Count top-level JSON objects in a text blob (handles concatenated JSON bodies)
 function countRecipesInText(text: string): number {
   if (!text) return 0;
-  // Try simple JSON parse first (common single case)
   try {
     const obj = JSON.parse(text);
     if (obj && typeof obj === "object") return 1;
-  } catch {
-    /* fall through */
-  }
-  // Streaming brace counter for concatenated objects
+  } catch { /* fall through */ }
   let count = 0, depth = 0, inString = false, escape = false;
   for (const ch of text) {
     if (inString) {
@@ -140,15 +139,12 @@ function countRecipesInText(text: string): number {
   return count || 0;
 }
 
-// Extract the first object's title (if present) for nicer single-link titles
 function extractFirstTitle(text: string): string | null {
   if (!text) return null;
-  // Single JSON?
   try {
     const obj = JSON.parse(text);
     if (obj && typeof obj.title === "string") return obj.title;
   } catch {
-    // Try to grab the substring of the first balanced {...} and parse that
     const first = extractFirstJsonObject(text);
     if (first) {
       try {
@@ -160,7 +156,6 @@ function extractFirstTitle(text: string): string | null {
   return null;
 }
 
-// Returns the first balanced JSON object as a string, or null
 function extractFirstJsonObject(text: string): string | null {
   let start = -1, depth = 0, inString = false, escape = false;
   for (let i = 0; i < text.length; i++) {
