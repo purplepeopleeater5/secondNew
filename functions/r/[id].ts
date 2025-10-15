@@ -1,32 +1,33 @@
 export const onRequestGet: PagesFunction<{ RECIPES_BUCKET: R2Bucket }> = async (ctx) => {
   const id = (ctx.params.id as string) || "";
   const key = `sharedRecipes/${id}.json`;
-
-  // Fetch the object once; we may need it for both paths
   const obj = await ctx.env.RECIPES_BUCKET.get(key);
   if (!obj) return new Response("Not found", { status: 404 });
 
+  const url = new URL(ctx.request.url);
   const accept = (ctx.request.headers.get("accept") || "").toLowerCase();
-  const forceHtml = new URL(ctx.request.url).searchParams.get("view") === "html";
+  const forceHtml = url.searchParams.get("view") === "html";
 
-  // If an unfurler/browser is asking for HTML (or ?view=html), render a tiny page with OG tags
+  // Serve HTML for unfurlers/browsers (iMessage, Slack, etc.)
   if (forceHtml || accept.includes("text/html")) {
-    // Safely parse JSON to extract a title (fallbacks if missing)
-    let title = "Nutmeg Recipe";
-    try {
-      const data = await obj.json<any>();
-      if (data && typeof data.title === "string" && data.title.trim().length) {
-        title = data.title.trim();
-      }
-    } catch {
-      // ignore parse errors; keep default title
-    }
+    // We need the body text to count recipes & extract the first title
+    const text = await obj.text();
+    const count = countRecipesInText(text);
+    const firstTitle = extractFirstTitle(text);
 
     const canonical = `https://nutmegrecipes.app/r/${encodeURIComponent(id)}`;
-
-    // Your repo-root icon file (URL-encoded spaces)
     const ogImage =
       "https://nutmegrecipes.app/20250405_1822_Happy%20Nutmeg%20Slice_remix_01jr4b2pm2fa88reyf1f05jf60-modified.png";
+
+    const title =
+      count > 1
+        ? `Download ${count} recipes`
+        : (firstTitle?.trim().length ? `Download “${firstTitle.trim()}”` : "Download this recipe");
+
+    const description =
+      count > 1
+        ? `You’ve been sent ${count} recipes. Tap to open in Nutmeg.`
+        : `You’ve been sent a recipe. Tap to open in Nutmeg.`;
 
     const html = `<!doctype html>
 <html lang="en">
@@ -40,16 +41,17 @@ export const onRequestGet: PagesFunction<{ RECIPES_BUCKET: R2Bucket }> = async (
 <meta property="og:type" content="website">
 <meta property="og:title" content="${escapeHtml(title)}">
 <meta property="og:site_name" content="Nutmeg">
-<meta property="og:description" content="Open in Nutmeg to import this recipe.">
+<meta property="og:description" content="${escapeHtml(description)}">
 <meta property="og:url" content="${canonical}">
 <meta property="og:image" content="${ogImage}">
+<meta property="og:image:alt" content="Nutmeg app icon">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 
 <!-- Twitter -->
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="${escapeHtml(title)}">
-<meta name="twitter:description" content="Open in Nutmeg to import this recipe.">
+<meta name="twitter:description" content="${escapeHtml(description)}">
 <meta name="twitter:image" content="${ogImage}">
 
 <style>
@@ -68,7 +70,7 @@ export const onRequestGet: PagesFunction<{ RECIPES_BUCKET: R2Bucket }> = async (
     <div class="card">
       <img class="icon" src="${ogImage}" alt="Nutmeg">
       <h1>${escapeHtml(title)}</h1>
-      <p>Open in Nutmeg to import this recipe.</p>
+      <p>${escapeHtml(description)}</p>
       <a class="btn" href="${canonical}">Open in Nutmeg</a>
     </div>
   </div>
@@ -78,13 +80,12 @@ export const onRequestGet: PagesFunction<{ RECIPES_BUCKET: R2Bucket }> = async (
     return new Response(html, {
       headers: {
         "content-type": "text/html; charset=utf-8",
-        // Small cache so scrapers can re-scrape occasionally; adjust to taste
         "cache-control": "public, max-age=300"
       }
     });
   }
 
-  // Default: serve raw JSON for the app
+  // Default: JSON for the app
   return new Response(obj.body, {
     headers: {
       "content-type": "application/json",
@@ -96,11 +97,10 @@ export const onRequestGet: PagesFunction<{ RECIPES_BUCKET: R2Bucket }> = async (
 export const onRequestHead: PagesFunction<{ RECIPES_BUCKET: R2Bucket }> = async (ctx) => {
   const id = (ctx.params.id as string) || "";
   const key = `sharedRecipes/${id}.json`;
-
   const head = await ctx.env.RECIPES_BUCKET.head(key);
   if (!head) return new Response(null, { status: 404 });
 
-  // Keep HEAD matching the JSON semantics for diagnostics/tools
+  // Keep HEAD JSON-like for diagnostics
   return new Response(null, {
     headers: {
       "content-type": "application/json",
@@ -109,7 +109,81 @@ export const onRequestHead: PagesFunction<{ RECIPES_BUCKET: R2Bucket }> = async 
   });
 };
 
-// ---------- utils ----------
+/* ----------------- utils ----------------- */
+
+// Count top-level JSON objects in a text blob (handles concatenated JSON bodies)
+function countRecipesInText(text: string): number {
+  if (!text) return 0;
+  // Try simple JSON parse first (common single case)
+  try {
+    const obj = JSON.parse(text);
+    if (obj && typeof obj === "object") return 1;
+  } catch {
+    /* fall through */
+  }
+  // Streaming brace counter for concatenated objects
+  let count = 0, depth = 0, inString = false, escape = false;
+  for (const ch of text) {
+    if (inString) {
+      if (escape) { escape = false; continue; }
+      if (ch === "\\") { escape = true; continue; }
+      if (ch === '"') { inString = false; }
+      continue;
+    }
+    if (ch === '"') { inString = true; continue; }
+    if (ch === "{") depth++;
+    else if (ch === "}") {
+      if (depth > 0) depth--;
+      if (depth === 0) count++;
+    }
+  }
+  return count || 0;
+}
+
+// Extract the first object's title (if present) for nicer single-link titles
+function extractFirstTitle(text: string): string | null {
+  if (!text) return null;
+  // Single JSON?
+  try {
+    const obj = JSON.parse(text);
+    if (obj && typeof obj.title === "string") return obj.title;
+  } catch {
+    // Try to grab the substring of the first balanced {...} and parse that
+    const first = extractFirstJsonObject(text);
+    if (first) {
+      try {
+        const obj = JSON.parse(first);
+        if (obj && typeof obj.title === "string") return obj.title;
+      } catch { /* ignore */ }
+    }
+  }
+  return null;
+}
+
+// Returns the first balanced JSON object as a string, or null
+function extractFirstJsonObject(text: string): string | null {
+  let start = -1, depth = 0, inString = false, escape = false;
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    if (inString) {
+      if (escape) { escape = false; continue; }
+      if (ch === "\\") { escape = true; continue; }
+      if (ch === '"') { inString = false; }
+      continue;
+    }
+    if (ch === '"') { inString = true; continue; }
+    if (ch === "{") {
+      if (depth === 0) start = i;
+      depth++;
+    } else if (ch === "}") {
+      if (depth > 0) depth--;
+      if (depth === 0 && start >= 0) {
+        return text.slice(start, i + 1);
+      }
+    }
+  }
+  return null;
+}
 
 function escapeHtml(s: string) {
   return s
