@@ -6,11 +6,10 @@ export const onRequestGet: PagesFunction<{ RECIPES_BUCKET: R2Bucket }> = async (
 
   const url = new URL(ctx.request.url);
   const accept = (ctx.request.headers.get("accept") || "").toLowerCase();
-  const format = url.searchParams.get("format"); // allow forcing JSON
+  const format = url.searchParams.get("format"); // ?format=json to force JSON
 
-  const wantsJson =
-    format === "json" ||
-    accept.includes("application/json");
+  // Serve JSON only if explicitly asked for; otherwise HTML so unfurlers show a rich preview.
+  const wantsJson = format === "json" || accept.includes("application/json");
 
   if (!wantsJson) {
     const text = await obj.text();
@@ -18,23 +17,24 @@ export const onRequestGet: PagesFunction<{ RECIPES_BUCKET: R2Bucket }> = async (
     const firstTitle = extractFirstTitle(text);
 
     const canonical = `https://nutmegrecipes.app/r/${encodeURIComponent(id)}`;
+    // Your repo-root PNG (URL-encoded spaces)
     const ogImage =
       "https://nutmegrecipes.app/20250405_1822_Happy%20Nutmeg%20Slice_remix_01jr4b2pm2fa88reyf1f05jf60-modified.png";
 
-    // More persuasive title
+    // High-intent copy that fits well in iMessage previews
     const title =
       count > 1
-        ? `Add these ${count} recipes to Nutmeg`
-        : firstTitle && firstTitle.trim().length > 0
+        ? `Add ${count} recipes to Nutmeg`
+        : firstTitle?.trim().length
           ? `Add “${firstTitle.trim()}” to Nutmeg`
           : `Add this recipe to Nutmeg`;
 
     const description =
       count > 1
-        ? `Open the Nutmeg app to import ${count} new recipes.`
-        : `Open the Nutmeg app to import this recipe.`;
+        ? `You’ve been sent ${count} recipes. Tap to open in Nutmeg.`
+        : `You’ve been sent a recipe. Tap to open in Nutmeg.`;
 
-    // App Store URL (if app is not installed)
+    // App Store fallback when the app isn’t installed
     const appStoreURL = "https://apps.apple.com/us/app/nutmeg-recipe-manager/id6749527409";
 
     const html = `<!doctype html>
@@ -44,6 +44,13 @@ export const onRequestGet: PagesFunction<{ RECIPES_BUCKET: R2Bucket }> = async (
   <title>${escapeHtml(title)} • Nutmeg</title>
   <link rel="canonical" href="${canonical}">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Speed up App Store redirect -->
+  <link rel="preconnect" href="https://apps.apple.com">
+  <link rel="dns-prefetch" href="https://apps.apple.com">
+
+  <!-- Smart App Banner (extra nudge in Safari) -->
+  <meta name="apple-itunes-app" content="app-id=6749527409">
 
   <!-- Open Graph -->
   <meta property="og:type" content="website">
@@ -62,6 +69,9 @@ export const onRequestGet: PagesFunction<{ RECIPES_BUCKET: R2Bucket }> = async (
   <meta name="twitter:description" content="${escapeHtml(description)}">
   <meta name="twitter:image" content="${ogImage}">
 
+  <!-- Meta refresh as a backup (fires fast even if timers are throttled) -->
+  <meta http-equiv="refresh" content="0.7; url=${appStoreURL}">
+
   <style>
     :root { color-scheme: light dark }
     body { margin: 0; font-family: -apple-system, system-ui, Segoe UI, Roboto, sans-serif; }
@@ -74,10 +84,29 @@ export const onRequestGet: PagesFunction<{ RECIPES_BUCKET: R2Bucket }> = async (
   </style>
 
   <script>
-    // After a short delay, redirect to App Store (in case app is not installed)
-    setTimeout(function() {
-      window.location.href = "${appStoreURL}";
-    }, 2000);
+    // Ultra-fast JS fallback; cancelled if the app opens (tab loses visibility).
+    (function() {
+      var appStoreURL = "${appStoreURL}";
+      var redirected = false;
+      function go() {
+        if (redirected) return;
+        redirected = true;
+        // replace() avoids a back button hop
+        window.location.replace(appStoreURL);
+      }
+
+      // If iOS switches to your app (universal link), the page becomes hidden; cancel fallback.
+      document.addEventListener("visibilitychange", function() {
+        if (document.hidden) redirected = true;
+      }, { passive: true });
+
+      // Fire quickly after DOM is interactive.
+      if (document.readyState === "complete" || document.readyState === "interactive") {
+        setTimeout(go, 500);
+      } else {
+        document.addEventListener("DOMContentLoaded", function() { setTimeout(go, 500); }, { once: true });
+      }
+    })();
   </script>
 </head>
 <body>
@@ -86,7 +115,7 @@ export const onRequestGet: PagesFunction<{ RECIPES_BUCKET: R2Bucket }> = async (
       <img class="icon" src="${ogImage}" alt="Nutmeg">
       <h1>${escapeHtml(title)}</h1>
       <p>${escapeHtml(description)}</p>
-      <a class="btn" href="${canonical}">Open in Nutmeg</a>
+      <a class="btn" href="${canonical}" onclick="event.preventDefault(); window.location.replace('${appStoreURL}');">Open in Nutmeg</a>
     </div>
   </div>
 </body>
@@ -100,7 +129,7 @@ export const onRequestGet: PagesFunction<{ RECIPES_BUCKET: R2Bucket }> = async (
     });
   }
 
-  // JSON path (for app)
+  // JSON path for the app
   return new Response(obj.body, {
     headers: {
       "content-type": "application/json",
@@ -122,13 +151,14 @@ export const onRequestHead: PagesFunction<{ RECIPES_BUCKET: R2Bucket }> = async 
   });
 };
 
-// --- Utils (same as before) ---
+/* -------------- utils -------------- */
+
 function countRecipesInText(text: string): number {
   if (!text) return 0;
   try {
     const obj = JSON.parse(text);
     if (obj && typeof obj === "object") return 1;
-  } catch { }
+  } catch { /* fall through */ }
   let count = 0, depth = 0, inString = false, escape = false;
   for (const ch of text) {
     if (inString) {
@@ -158,7 +188,7 @@ function extractFirstTitle(text: string): string | null {
       try {
         const o = JSON.parse(first);
         if (o && typeof o.title === "string") return o.title;
-      } catch { }
+      } catch { /* ignore */ }
     }
   }
   return null;
